@@ -1,0 +1,1 @@
+type FormFieldErrors = Array<string>

@@ -5,14 +5,16 @@ import { db } from "../lib/db"
 import { getUserById } from "@/data/user"
 import { getAccountByUserId } from "@/data/account"
 import { appConfig } from "@/config/app"
-import { SignInRoute } from "@/routes"
+import { SIGNIN_ROUTE } from "@/routes"
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
     adapter: PrismaAdapter(db),
     session: { strategy: "jwt" },
     callbacks: {
-        async signIn({ user }) {
-            const userNotFoundRoute = new URL(`${SignInRoute}?error=UserNotFound`, appConfig.host).href;
+        async signIn({ user, account }) {
+            if (account?.provider !== 'credentials') return true;
+
+            const userNotFoundRoute = new URL(`${SIGNIN_ROUTE}?error=Invalid_credentials`, appConfig.host).href;
             if (!user.id) return userNotFoundRoute;
             const existingUser = await getUserById(user.id);
 
@@ -21,8 +23,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             }
 
             if (!existingUser.emailVerified) {
-                return new URL(`${SignInRoute}?error=EmailNotVerified`, appConfig.host).href;
+                return new URL(`${SIGNIN_ROUTE}?error=Email_not_verified`, appConfig.host).href;
             }
+
 
             return true;
         },
@@ -74,5 +77,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             })
         },
     },
+    trustHost: true,
     ...authConfig,
 })

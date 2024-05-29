@@ -57,3 +57,19 @@ model Account {
   @@unique([provider, providerAccountId])
   @@index([userId])
 }
+
+enum TokenType {
+  VERIFICATION
+  FORGOTPASSWORD
+}
+
+model OneTimeToken {
+  id                 String  @id @default(cuid())
+  email              String 
+  token              String @default(uuid()) @unique
+  expiresAt          DateTime @default(now())
+
+  type               TokenType
+
+  @@unique([type, email]) 
+}
