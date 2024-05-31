@@ -29,7 +29,7 @@ model User {
   role            Role @default(USER)
 
   isTwoFactorEnabled Boolean @default(false)
-  // twoFactorConfirmation TwoFactorConfirmation?
+  twoFactorConfirmations TwoFactorConfirmation[]
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -61,6 +61,7 @@ model Account {
 enum TokenType {
   VERIFICATION
   FORGOTPASSWORD
+  TWOFACTORAUTH
 }
 
 model OneTimeToken {
@@ -70,6 +71,17 @@ model OneTimeToken {
   expiresAt          DateTime @default(now())
 
   type               TokenType
+  payload            String?
 
   @@unique([type, email]) 
+}
+
+model TwoFactorConfirmation {
+  id                 String  @id @default(cuid())
+
+  key                String @default(uuid())
+  userId             String 
+  user               User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  expiresAt          DateTime? // NULL means it never expires
 }

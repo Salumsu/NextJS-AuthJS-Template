@@ -60,7 +60,6 @@ export const handler = async (data: InputType): Promise<ReturnType> => {
             success: 'Signin success'
         }
     } catch (error) {
-        console.log(error);
         if (error instanceof AuthError) {
             switch (error.type) {
                 case 'CredentialsSignin':

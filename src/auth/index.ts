@@ -1,11 +1,20 @@
 import NextAuth from "next-auth"
 import { PrismaAdapter } from "@auth/prisma-adapter"
+import crypto from 'crypto'
+
 import authConfig from "./config"
 import { db } from "../lib/db"
+import { appConfig } from "@/config/app"
+
+import { SIGNIN_ROUTE, TWO_FACTOR_AUTH_ROUTE } from "@/routes"
+
 import { getUserById } from "@/data/user"
 import { getAccountByUserId } from "@/data/account"
-import { appConfig } from "@/config/app"
-import { SIGNIN_ROUTE } from "@/routes"
+
+import { generateOneTimeToken } from "@/lib/token"
+import { sendTwoFactorAuthEmail } from "@/lib/email"
+import { cookies } from "next/headers"
+import { getTwoFactorAuthConfirmationByKey } from "@/data/two-factor-auth"
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
     adapter: PrismaAdapter(db),
@@ -26,6 +35,36 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 return new URL(`${SIGNIN_ROUTE}?error=Email_not_verified`, appConfig.host).href;
             }
 
+
+            if (existingUser.isTwoFactorEnabled) {
+                const key = cookies().get('two-factor-auth-key')?.value;
+
+                if (key) {
+                    const confirmation = await getTwoFactorAuthConfirmationByKey(key);
+
+                    if (!confirmation || (confirmation.expiresAt && confirmation.expiresAt < new Date())) {
+                        cookies().delete('two-factor-auth-key');
+                        await db.twoFactorConfirmation.deleteMany({
+                            where: {
+                                key
+                            }
+                        })
+                    } else {
+                        return true;
+                    }
+                }
+
+                const code = crypto.randomBytes(10).toString('hex');
+                const newTwoFactorToken = await generateOneTimeToken(existingUser.email ?? '', 'TWOFACTORAUTH', { payload: code, hours: 1 });
+
+                const emailSuccess = await sendTwoFactorAuthEmail(existingUser.email ?? '', code, newTwoFactorToken.token);
+
+                if (emailSuccess) {
+                    return new URL(`${TWO_FACTOR_AUTH_ROUTE}?token=${newTwoFactorToken.token}`, appConfig.host).href;
+                } else {
+                    return new URL(`${SIGNIN_ROUTE}?error=Failed_to_send_2FA`, appConfig.host).href;
+                }
+            }
 
             return true;
         },
