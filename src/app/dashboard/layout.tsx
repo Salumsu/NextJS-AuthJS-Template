@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-import { NON_ADMIN_REDIRECT } from "@/routes";
+import { NON_ADMIN_SIGNIN_REDIRECT } from "@/routes";
 
 import { DashboardHeader } from "./_components/header";
 import { DashboardDesktopSidebar } from "./_components/desktop-sidebar";
@@ -17,7 +17,7 @@ export default async function DashboardLayout({
   const currentUserRole = await getCurrentUserRole();
 
   if (!currentUserRole || currentUserRole !== "ADMIN") {
-    return redirect(NON_ADMIN_REDIRECT);
+    return redirect(NON_ADMIN_SIGNIN_REDIRECT);
   }
 
   return (

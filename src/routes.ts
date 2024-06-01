@@ -17,10 +17,14 @@ export const AUTH_ROUTES = [
     `${AUTH_ROUTE_PREFIX}/signout`
 ]
 
-export const DEFAULT_SIGNIN_REDIRECT = "/dashboard"
+export const ACCOUNT_SETTINGS_ROUTE = '/my-account'
+export const ADMIN_DASHBOARD_ROUTE = "/dashboard"
+
+export const NON_ADMIN_SIGNIN_REDIRECT = '/'
+export const DEFAULT_SIGNIN_REDIRECT = ADMIN_DASHBOARD_ROUTE
 export const DEFAULT_SIGNOUT_REDIRECT = SIGNIN_ROUTE
-export const ACCOUNT_SETTINGS_ROUTE = '/account'
-export const NON_ADMIN_REDIRECT = '/'
+
+
 
 export const PUBLIC_ROUTES = [
     '/',

@@ -1,6 +1,7 @@
 import * as z from 'zod';
 
-import { ActionFieldErrors, ActionHandler, ActionState } from '@/actions/action';
+import { ActionFieldErrors, ActionHandler, ActionHandlerWithAuth, ActionState } from '@/actions/action';
+import { auth } from '@/auth';
 
 export const createSafeActionHandler = <TInput, TOutput>(
     schema: z.Schema<TInput>,
@@ -19,3 +20,20 @@ export const createSafeActionHandler = <TInput, TOutput>(
     }
 }
 
+export type TSafeAction<TInput, TOutput> = ReturnType<typeof createSafeActionHandler<TInput, TOutput>>
+
+export const createAuthOnlyAction = <TInput, TOutput>(
+    handler: ActionHandlerWithAuth<TInput, TOutput>
+) => {
+    return async (data: TInput): Promise<ActionState<TInput, TOutput>> => {
+        const session = await auth();
+
+        if (!session || !session.user) {
+            return {
+                error: "Unauthenticated"
+            }
+        }
+
+        return handler(data, session.user);
+    }
+}

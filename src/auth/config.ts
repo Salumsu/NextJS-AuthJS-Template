@@ -3,6 +3,7 @@ import type { NextAuthConfig } from 'next-auth'
 import crypto from 'crypto'
 import { cookies } from 'next/headers'
 
+
 import Github from 'next-auth/providers/github'
 import Google from 'next-auth/providers/google'
 import Credentials from 'next-auth/providers/credentials'
@@ -14,6 +15,7 @@ import { db } from '@/lib/db'
 import { getUserByEmail } from '@/data/user';
 import { getOneTimeTokenByToken } from '@/data/token'
 import { addHours } from 'date-fns'
+import { ResponseCookie } from 'next/dist/compiled/@edge-runtime/cookies'
 
 export default {
     providers: [
@@ -36,11 +38,13 @@ export default {
                     hidden: true
                 }
             },
+
             async authorize(credentials) {
                 const { twoFA: token, rememberDevice } = credentials as {
                     twoFA: string | null | undefined,
                     rememberDevice: string | null | undefined
                 };
+
 
                 if (token) {
                     const twoFactorToken = await getOneTimeTokenByToken(token, 'TWOFACTORAUTH');
@@ -67,13 +71,20 @@ export default {
                                 }
                             })
 
-                            cookies().set('two-factor-auth-key', key, {
-                                expires: new Date(2100, 1, 1),
+                            const cookieOptions: Partial<ResponseCookie> = {
                                 path: '/',
                                 secure: true,
                                 httpOnly: true,
-                                sameSite: 'strict'
-                            });
+                                sameSite: 'strict', // Use 'Strict' to prevent CSRF attacks
+                            };
+
+                            if (rememberDevice === "on") {
+                                cookieOptions.expires = new Date('2100-01-01');
+                            } else {
+                                cookieOptions.maxAge = 24 * 60 * 60; // 24 hours in seconds
+                            }
+
+                            cookies().set('two-factor-auth-key', key, cookieOptions);
                         }
                         return user;
                     }
@@ -103,4 +114,4 @@ export default {
             clientSecret: process.env.GOOGLE_CLIENT_SECRET,
         }),
     ]
-} satisfies NextAuthConfig;
+} satisfies NextAuthConfig

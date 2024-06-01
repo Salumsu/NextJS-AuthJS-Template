@@ -5,6 +5,7 @@ import crypto from 'crypto'
 import authConfig from "./config"
 import { db } from "../lib/db"
 import { appConfig } from "@/config/app"
+import { cookies } from "next/headers"
 
 import { SIGNIN_ROUTE, TWO_FACTOR_AUTH_ROUTE } from "@/routes"
 
@@ -13,7 +14,6 @@ import { getAccountByUserId } from "@/data/account"
 
 import { generateOneTimeToken } from "@/lib/token"
 import { sendTwoFactorAuthEmail } from "@/lib/email"
-import { cookies } from "next/headers"
 import { getTwoFactorAuthConfirmationByKey } from "@/data/two-factor-auth"
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
@@ -39,11 +39,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             if (existingUser.isTwoFactorEnabled) {
                 const key = cookies().get('two-factor-auth-key')?.value;
 
+
                 if (key) {
                     const confirmation = await getTwoFactorAuthConfirmationByKey(key);
-
+                    console.log(confirmation);
                     if (!confirmation || (confirmation.expiresAt && confirmation.expiresAt < new Date())) {
-                        cookies().delete('two-factor-auth-key');
+
+                        cookies().delete('two-factor-auth-key')
                         await db.twoFactorConfirmation.deleteMany({
                             where: {
                                 key

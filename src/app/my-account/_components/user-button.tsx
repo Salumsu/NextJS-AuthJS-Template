@@ -1,7 +1,7 @@
-import { UserIcon } from "lucide-react";
+import { LayoutDashboardIcon } from "lucide-react";
 import Link from "next/link";
 
-import { ACCOUNT_SETTINGS_ROUTE } from "@/routes";
+import { ADMIN_DASHBOARD_ROUTE } from "@/routes";
 
 import { UserButtonMenu } from "@/components/auth/user-button/menu";
 import { UserButtonMenuSignout } from "@/components/auth/user-button/signout-button";
@@ -9,32 +9,34 @@ import { UserButtonAvatar } from "@/components/auth/user-button/user-avatar";
 import { UserButtonEmail } from "@/components/auth/user-button/user-email";
 import { UserButtonName } from "@/components/auth/user-button/user-name";
 
-export const DashboardUserButton = () => {
+export const AccountUserButton = () => {
   return (
     <UserButtonMenu
+      className="flex justify-start"
       items={[
         {
           node: (
             <Link
-              href={ACCOUNT_SETTINGS_ROUTE}
+              href={ADMIN_DASHBOARD_ROUTE}
               className="flex items-center w-full"
             >
-              <UserIcon className="size-4 mr-2" />
-              Account Settings
+              <LayoutDashboardIcon className="size-4 mr-2" />
+              Admin dashboard
             </Link>
           ),
+          onlyRoles: ["ADMIN"],
         },
         {
           node: <UserButtonMenuSignout />,
         },
       ]}
     >
-      <div className="flex gap-2">
-        <div className="text-right">
+      <div className="flex gap-2 justify-start">
+        <UserButtonAvatar />
+        <div className="text-left">
           <UserButtonName />
           <UserButtonEmail className="text-xs" />
         </div>
-        <UserButtonAvatar />
       </div>
     </UserButtonMenu>
   );

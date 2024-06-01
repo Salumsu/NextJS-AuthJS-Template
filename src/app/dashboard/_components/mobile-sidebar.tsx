@@ -19,7 +19,7 @@ export const DashboardMobileSidebar = () => {
 
   return (
     <Sheet>
-      <SheetTrigger>
+      <SheetTrigger asChild>
         <Button className="h-max py-1 lg:hidden" size="sm" variant="ghost">
           <FcMenu className="size-6" />
         </Button>

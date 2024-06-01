@@ -1,19 +1,22 @@
-import { auth } from "@/auth";
+"use client";
+import { getCookie } from "@/actions/cookie";
 import { UserButton } from "@/components/auth/user-button";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
-export default async function RootPage() {
-  const session = await auth();
+export default function RootPage() {
+  const [cookie, setCookie] = useState<string | null>(null);
 
-  return (
-    <div>
-      Hello
-      <UserButton>
-        <Button variant="ghost" asChild>
-          <Link href="/dashboard">Go to dashboard</Link>
-        </Button>
-      </UserButton>
-    </div>
-  );
+  useEffect(() => {
+    async function getData() {
+      const _cookie = await getCookie("edgestore-token");
+
+      setCookie(_cookie?.value ?? "");
+    }
+
+    getData();
+  }, []);
+
+  return <div>{cookie}</div>;
 }

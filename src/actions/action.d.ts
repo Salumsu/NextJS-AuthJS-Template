@@ -1,3 +1,4 @@
+import { ExtendedUser } from "@/auth/auth";
 
 
 export type ActionFieldErrors<T> = {
@@ -14,3 +15,5 @@ export type ActionState<TInput, TOutput> = {
 export type ActionHandler<TInput, TOutput> =
     (validatedData: TInput) => Promise<ActionState<TInput, TOutput>>;
 
+export type ActionHandlerWithAuth<TInput, TOutput> =
+    (validatedData: TInput, user: ExtendedUser) => Promise<ActionState<TInput, TOutput>>

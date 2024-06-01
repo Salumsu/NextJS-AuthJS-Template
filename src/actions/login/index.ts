@@ -6,7 +6,7 @@ import { createSafeActionHandler } from "@/lib/action";
 import { InputType, ReturnType } from "./types";
 import { LoginSchema } from "./schema";
 
-import { DEFAULT_SIGNIN_REDIRECT } from "@/routes";
+import { DEFAULT_SIGNIN_REDIRECT, NON_ADMIN_SIGNIN_REDIRECT } from "@/routes";
 import { signIn } from "@/auth";
 
 import { getUserByEmail } from "@/data/user";
@@ -53,7 +53,7 @@ export const handler = async (data: InputType): Promise<ReturnType> => {
         await signIn('credentials', {
             email,
             password,
-            redirectTo: DEFAULT_SIGNIN_REDIRECT
+            redirectTo: user?.role === "ADMIN" ? DEFAULT_SIGNIN_REDIRECT : NON_ADMIN_SIGNIN_REDIRECT
         })
 
         return {
@@ -64,8 +64,6 @@ export const handler = async (data: InputType): Promise<ReturnType> => {
             switch (error.type) {
                 case 'CredentialsSignin':
                     return { error: 'Invalid credentials' }
-                case 'AccessDenied':
-                    return { error: 'Email not verified!' }
                 default:
                     return { error: 'Server error' }
             }
