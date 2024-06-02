@@ -13,3 +13,18 @@ export const getTwoFactorAuthConfirmationByKey = async (key: string) => {
         return null;
     }
 }
+
+export const getTwoFactorConfirmationsByUserId = async (userId: string) => {
+    try {
+        const confirmations = await db.twoFactorConfirmation.findMany({
+            where: {
+                userId
+            }
+        })
+
+        return confirmations
+    } catch (err) {
+        console.log("GET-TWO-FACTOR-CONFIRMATIONS-BY-USER-ID_ERROR: ", err)
+        return [];
+    }
+}

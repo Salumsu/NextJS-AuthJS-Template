@@ -1,7 +1,6 @@
-import { z } from "zod";
-import { ResetPasswordSchema } from "./schema";
+import { TResetPasswordSchema } from "./schema";
 import { ActionState } from "../action";
 
 
-export type InputType = z.infer<typeof ResetPasswordSchema>;
+export type InputType = TResetPasswordSchema;
 export type ReturnType = ActionState<InputType, null>;

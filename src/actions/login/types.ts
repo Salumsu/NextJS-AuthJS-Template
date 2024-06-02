@@ -1,7 +1,6 @@
-import { z } from "zod";
-import { LoginSchema } from "./schema";
+import { TLoginSchema } from "./schema";
 import { ActionState } from "../action";
 
 
-export type InputType = z.infer<typeof LoginSchema>;
+export type InputType = TLoginSchema;
 export type ReturnType = ActionState<InputType, null>;

@@ -1,7 +1,6 @@
-import { z } from "zod";
-import { RegisterSchema } from "./schema";
+import { TRegisterSchema } from "./schema";
 import { ActionState } from "../action";
 
 
-export type InputType = z.infer<typeof RegisterSchema>;
+export type InputType = TRegisterSchema;
 export type ReturnType = ActionState<InputType, null>;
